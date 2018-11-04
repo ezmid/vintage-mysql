@@ -29,8 +29,8 @@ ECHO=$(shell which echo)
 # Specific project variables
 ################################################################################
 REGISTRY=hub.docker.com
-NAMESPACE=vintage
-IMAGE=mysql
+NAMESPACE=ezmid
+IMAGE=vintage-mysql
 TAG=latest
 
 ################################################################################
