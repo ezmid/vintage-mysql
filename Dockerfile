@@ -1,10 +1,11 @@
-FROM alpine:edge
+FROM alpine:3.8
 
 MAINTAINER Filip Cieker "filip.cieker@ezmid.com"
+LABEL maintainer="Filip Cieker filip.cieker@ezmid.com"
 
 ################################################################################
 # Quick edit versions
-ARG S6_OVERLAY_VERSION=1.18.1.5
+ARG S6_OVERLAY_VERSION=1.21.7.0
 
 ################################################################################
 # Layer 1 - Init file system
