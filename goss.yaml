@@ -1,19 +1,17 @@
 package:
-  mysql:
+  mariadb:
     installed: true
     versions:
-    - 10.2.15-r0
+      - 10.3.17-r0
 user:
   mysql:
     exists: true
     uid: 100
     gid: 101
     groups:
-    - mysql
+      - mysql
     home: /var/lib/mysql
     shell: /sbin/nologin
 process:
-  mysqld:
-    running: true
   s6-svscan:
     running: true

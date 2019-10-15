@@ -1,39 +1,30 @@
-FROM alpine:3.8
+FROM alpine:3.10
 
-MAINTAINER Filip Cieker "filip.cieker@ezmid.com"
-LABEL maintainer="Filip Cieker filip.cieker@ezmid.com"
+ENV S6_OVERLAY_VERSION=v1.22.1.0
 
-################################################################################
-# Quick edit versions
-ARG S6_OVERLAY_VERSION=1.21.7.0
+RUN apk --no-cache --update upgrade && \
+    apk add curl && \
+        curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz \
+        | tar xfz - -C / && \
+        apk del curl
 
-################################################################################
-# Layer 1 - Init file system
-COPY ./docker/01-init-fs /
+RUN apk add bash mariadb mariadb-client
 
-################################################################################
-# Layer 2 - ADD s6 overlay
-RUN apk add --no-cache curl \
-	&& curl -L -s https://github.com/just-containers/s6-overlay/releases/download/v$S6_OVERLAY_VERSION/s6-overlay-amd64.tar.gz \
-	| tar xvzf - -C /
-
-################################################################################
-# Layer 3 - Add MySQL
-RUN apk --no-cache --update add \
-	mysql \
-	mysql-client \
-	bash \
-	tzdata && \
-    addgroup mysql mysql && \
+RUN \
+    # Create needed directories
+    mkdir -p /var/lib/mysql && \
+    mkdir -p /run/mysqld && \
+    mkdir /etc/mysql/conf.d && \
+    \
+    # Set permissions
+    chown -R mysql:mysql /var/lib/mysql && \
+    chown -R mysql:mysql /run/mysqld && \
     rm -rf /var/cache/apk/*
 
-################################################################################
-# Layer 4 - Path the filesystem with MySQL configuration
-COPY ./docker/02-patch-fs /
+ADD docker/02-patch-fs /
 
+RUN chmod -R o+x /etc/s6/services/01-mysql/*
 
-################################################################################
-# Init the system
-VOLUME ["/var/lib/mysql"]
-EXPOSE 3306
-CMD ["/init"]
+VOLUME [ "/run" ]
+ENTRYPOINT ["/init"]
+CMD []

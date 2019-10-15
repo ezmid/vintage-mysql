@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+
+while [ ! -f /tmp/state/01-init-mysql ]
+do
+  sleep 1
+done
+
+### Set Debug Mode
+if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ]; then
+    set -x
+fi
+
+if [ ! -f /tmp/state/01-mysql ]; then
+    mkdir -p /tmp/state/
+	echo 'Initialization Complete' >/tmp/state/01-mysql
+fi
+
+echo "** [mysql] Starting mysql" $mysql_VERSION
+exec /usr/bin/mysqld --defaults-file=/etc/mysql/my.cnf --user=mysql --console

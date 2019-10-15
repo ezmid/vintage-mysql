@@ -2,7 +2,27 @@
 
 [![Build Status](https://travis-ci.org/ezmid/vintage-mysql.svg?branch=master)](https://travis-ci.org/ezmid/vintage-mysql) ![Docker Hub Status](https://img.shields.io/docker/build/ezmid/vintage-mysql.svg) ![Image Pulls](https://img.shields.io/docker/pulls/ezmid/vintage-mysql.svg) ![Image Stars](https://img.shields.io/docker/stars/ezmid/vintage-mysql.svg)
 
-This is a simple docker image with a MySQL server build on top of Alpine Linux for development purposes.
+This is a simple Docker image with a MySQL compliant MariaDB server build on top of Alpine Linux for development purposes.
+
+## Usage
+
+```yaml
+# Example of docker-compose.yaml
+version: "3"
+services:
+    mysql:
+        image: ezmid/vintage-mysql:latest
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASS:-root}"
+            MYSQL_DBTABASE: "${DB_NAME:-my-project}"
+            MYSQL_USER: "${DB_USER:-my-project}"
+            MYSQL_PASSWORD: "${DB_PASS:-my-project}"
+            # For alpine version..
+            MYSQL_ROOT_PWD: "${DB_ROOT_PASS:-root}"
+            MYSQL_USER_DB: "${DB_NAME:-my-project}"
+```
 
 ## Installation
 

@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mysql:
+    image: ezmid/vintage-mysql:latest
+    ports:
+      - 3306:3306
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      DEBUG_MODE: 'true'
+      TEMP_FILE: /tmp/init-sql
+      MYSQL_DATABASE: projectDatabase
+      MYSQL_USER: projectUser
+      MYSQL_PASSWORD: projectPass
+      MYSQL_ROOT_PASSWORD: root
+      CHARACTER_SET: utf8
+      CHARACTER_COLLATION: utf8_general_ci
+

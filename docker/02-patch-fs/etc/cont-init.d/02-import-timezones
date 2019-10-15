@@ -1,29 +1,17 @@
-#!/usr/bin/env sh
+#!/usr/bin/with-contenv bash
 
 # parameters
-MYSQL_ROOT_PWD=${MYSQL_ROOT_PWD:-"root"}
-MYSQL_USER=${MYSQL_USER:-"developer"}
-MYSQL_USER_PWD=${MYSQL_USER_PWD:-"developer"}
-MYSQL_USER_DB=${MYSQL_USER_DB:-""}
+# MYSQL_ROOT_PWD=${MYSQL_ROOT_PWD:-"root"}
+# MYSQL_USER=${MYSQL_USER:-"developer"}
+# MYSQL_USER_PWD=${MYSQL_USER_PWD:-"developer"}
+# MYSQL_USER_DB=${MYSQL_USER_DB:-""}
 
-echo '[i] waiting for MySQL to come up'
-until mysql -h localhost -u root -p$MYSQL_ROOT_PWD -e "show databases;"; do
- >&2 echo "MySQL service is down - sleeping"
- sleep 1
-done
->&2 echo "MySQL service is up"
+# echo '[i] waiting for MySQL to come up'
+# until mysql -h localhost -u root -p$MYSQL_ROOT_PWD -e "show databases;"; do
+#  >&2 echo "MySQL service is down - sleeping"
+#  sleep 1
+# done
+# >&2 echo "MySQL service is up"
 
-echo '[i] importing time zone info'
-mysql_tzinfo_to_sql /usr/share/zoneinfo/ | mysql -u root -proot mysql
-
-# echo '[i] clearing up processes for daemons'
-# PID=`pgrep mysqld`
-# echo '[i] killing '$PID
-# while kill -0 $PID;
-# printf  '.';
-# do sleep 1;
-# done;
-
-#while s=`ps -p $PID -o s=` && [[ "$s" && "$s" != 'Z' ]]; do
-#    sleep 1
-#done
+# echo '[i] importing time zone info'
+# mysql_tzinfo_to_sql /usr/share/zoneinfo/ | mysql -u root -proot mysql

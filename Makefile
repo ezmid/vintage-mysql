@@ -4,8 +4,10 @@
 .ONESHELL:
 
 ################################################################################
-# Colors
 ################################################################################
+# Variable definitions
+################################################################################
+
 # Are we running in an interactive shell? If so then we can use codes for
 # a colored output
 ifeq ("$(shell [ -t 0 ] && echo yes)","yes")
@@ -22,56 +24,78 @@ FORMAT_GREEN=
 FORMAT_RESET=
 endif
 
-# Echo binary
+# Path to the echo binary. This is needed because on some systems there are
+# multiple versions installed and the alias "echo" may reffer to something
+# different.
 ECHO=$(shell which echo)
+OSECHOFLAG=-e
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	ECHO=echo
+	OSECHOFLAG=
+	FORMAT_BOLD=
+endif
+
+# Import all ENV vars / overwrite defaults
+ifeq ($(shell test -e .env && echo -n yes),yes)
+    include ./.env
+    export $(shell sed 's/=.*//' .env)
+endif
 
 ################################################################################
-# Specific project variables
 ################################################################################
-REGISTRY=hub.docker.com
-NAMESPACE=ezmid
-IMAGE=vintage-mysql
-TAG=latest
+# Help and tool warmup
+################################################################################
 
-################################################################################
-# Manual
+# Default target, must be first!
 .ONESHELL: default
 .PHONY: default
-default: 
-	@$(ECHO) -e "\n$(FORMAT_BOLD)VINTAGE MAKE TOOL$(FORMAT_RESET)\n" \
+default:
+	@$(ECHO) ""
+	@$(ECHO) "\n\n$(FORMAT_YELLOW)$(shell cat docs/ascii-logo.txt)$(FORMAT_RESET)\n"
+	@$(ECHO) $(OSECHOFLAG)  "$(FORMAT_YELLOW)\n\nCommands:$(FORMAT_RESET)\n\n" \
+	"  make init                              Init environment from *.dist files\n" \
+	"  make start                             Start all Docker services\n" \
+	"  make build                             Build binary\n" \
+	"  make test                              Quick run tests\n" \
+	"  make test/curl                         Quick check of /v1/translate API\n" \
 	"\n" \
-	"$(FORMAT_YELLOW)Variables:$(FORMAT_RESET)\n" \
-	"  REGISTRY:                    $(REGISTRY)\n" \
-	"  NAMESPACE:                   $(NAMESPACE)\n" \
-	"  IMAGE:                       $(IMAGE)\n" \
-	"  TAG:                         $(TAG)\n" \
+	"  make docker/login                      Login to the registry\n" \
+	"  make docker/build                      Build docker image\n" \
+	"  make docker/push                       Push a docker image to the registry\n" \
 	"\n" \
-	"$(FORMAT_YELLOW)Commands:$(FORMAT_RESET)\n" \
-	"  make build                   Build the image\n" \
-	"  make build TAG=1.1.0         Build a specific version of the image\n" \
-	"  make test                    Test the image with Goss\n" \
-	"  make test TAG=1.1.0          Test a specific version of the image with Goss\n" \
-	"  make push                    Push the image to the registry\n" \
-	"  make push TAG=1.1.0          Push a specific version of the image to the registry\n" \
-	"\n"
+	"\n" \
+
+# Preload .env variables if file exists
+.PHONY: env/load
+env/load:
+ifneq ($(wildcard .env),)
+    include ./.env
+    export $(shell sed 's/=.*//' .env)
+endif
+
+# Prepare env for development
+.PHONY: init
+init:
+	cp -p .env.dist .env
 
 ################################################################################
 # Build/rebuild the image
 .PHONY: build
 .ONESHELL: build
 build:
-	docker build . -t $(REGISTRY)/$(NAMESPACE)/$(IMAGE):$(TAG)
+	docker build . -t $(IMAGE_NAME):$(TAG)
 
 ################################################################################
 # Push the image to registry
 .PHONY: push
 .ONESHELL: push
 push:
-	docker push $(REGISTRY)/$(NAMESPACE)/$(IMAGE):$(TAG)
+	docker push $(IMAGE_NAME):$(TAG)
 
 ################################################################################
 # Run a test
 .PHONY: test
 .ONESHELL: test
 test:
-	@dgoss run $(REGISTRY)/$(NAMESPACE)/$(IMAGE):$(TAG)
+	@dgoss run $(IMAGE_NAME):$(TAG) --retry-timeout 30s --sleep 1s
